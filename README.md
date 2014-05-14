@@ -23,8 +23,7 @@ search interface:
 ```
 Algorithms:
 -----
-	Assuming there are 10 layers of the quadtree,   
-	the num of the bottom grids is 4^9.  
+	Assuming there are 10 layers of the quadtree,the num of the bottom grids is 4^9.  
 	Each data with latitude and longitude is mapped to the bottom grid.  
 	Search when hit the grid at bottom,   
 	calculate the corresponding underlying grid array,  
@@ -50,8 +49,7 @@ Performance Monitoring:
 	1.go metrics.
 Scale:
 -----
-	1.Spatial data is about 270 million data to about 1G size file,  
-	if just store the ID(int32).
+	1.Spatial data is about 270 million data to about 1G size file,if just store the ID(int32).
 next to do:
 -----
 	1.Infrastructure Optimization
