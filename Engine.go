@@ -123,6 +123,12 @@ func main() {
 		}
 	}()
 
+	OnInterrupt(func() {
+		fmt.Println("start to stop Engine...")
+		engine.close()
+		fmt.Println("successfully stopped the engine.")
+	})
+
 	http.HandleFunc("/search", engine.search)
 	http.HandleFunc("/index", engine.index)
 	err := http.ListenAndServe(":8888", nil)
