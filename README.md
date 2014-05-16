@@ -2,9 +2,13 @@ GridSearch
 ==========
 real-time grid search engine
 
-Usage:
+Installation:
 -----
-go get github.com/rcrowley/go-metrics
+```
+	go get github.com/KunBetter/GridSearch
+	$GOPATH/bin/GridSearch
+```	
+Now you have GridSearch running on port 8888 and can use the index and search interfaces as below.
 
 index interface:
 -----
