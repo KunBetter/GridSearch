@@ -4,7 +4,7 @@ real-time grid search engine
 
 Installation
 -----
-go get github.com/KunBetter/GridSearch
+go get github.com/KunBetter/GridSearch  
 $GOPATH/bin/GridSearch
 
 Requires
