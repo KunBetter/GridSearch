@@ -6,7 +6,7 @@ import (
 )
 
 type rect struct {
-	left, top, right, bottom int32
+	Left, Top, Right, Bottom int32
 }
 
 func NewRectBy4String(v []string) (*rect, bool) {
@@ -37,45 +37,45 @@ func NewRectBy4String(v []string) (*rect, bool) {
 
 func (r *rect) getCenter() point {
 	var p point
-	p.lo = (r.left + r.right) / 2
-	p.la = (r.top + r.bottom) / 2
+	p.lo = (r.Left + r.Right) / 2
+	p.la = (r.Top + r.Bottom) / 2
 	return p
 }
 
 func (r *rect) legal() (ok bool) {
 	ok = true
-	if r.left > r.right {
+	if r.Left > r.Right {
 		ok = false
 	}
-	if r.top < r.bottom {
+	if r.Top < r.Bottom {
 		ok = false
 	}
 	return
 }
 
 func (r *rect) width() int32 {
-	return r.right - r.left
+	return r.Right - r.Left
 }
 
 func (r *rect) height() int32 {
-	return r.top - r.bottom
+	return r.Top - r.Bottom
 }
 
 func (r *rect) equal(other *rect) bool {
-	if r.left == other.left &&
-		r.top == other.top &&
-		r.right == other.right &&
-		r.bottom == other.bottom {
+	if r.Left == other.Left &&
+		r.Top == other.Top &&
+		r.Right == other.Right &&
+		r.Bottom == other.Bottom {
 		return true
 	}
 	return false
 }
 
 func (r *rect) intersection(other *rect) (nr rect, ok bool) {
-	nr.left = max(r.left, other.left)
-	nr.top = min(r.top, other.top)
-	nr.right = min(r.right, other.right)
-	nr.bottom = max(r.bottom, other.bottom)
+	nr.Left = max(r.Left, other.Left)
+	nr.Top = min(r.Top, other.Top)
+	nr.Right = min(r.Right, other.Right)
+	nr.Bottom = max(r.Bottom, other.Bottom)
 	ok = nr.legal()
 	return
 }
@@ -104,50 +104,50 @@ func (r *rect) getQDRect(qd int32) (nr rect) {
 	center := r.getCenter()
 
 	if qd == 0 {
-		nr.left = r.left
-		nr.top = r.top
-		nr.right = center.lo
-		nr.bottom = center.la
+		nr.Left = r.Left
+		nr.Top = r.Top
+		nr.Right = center.lo
+		nr.Bottom = center.la
 	}
 
 	if qd == 1 {
-		nr.left = center.lo
-		nr.top = r.top
-		nr.right = r.right
-		nr.bottom = center.la
+		nr.Left = center.lo
+		nr.Top = r.Top
+		nr.Right = r.Right
+		nr.Bottom = center.la
 	}
 
 	if qd == 2 {
-		nr.left = r.left
-		nr.top = center.la
-		nr.right = center.lo
-		nr.bottom = r.bottom
+		nr.Left = r.Left
+		nr.Top = center.la
+		nr.Right = center.lo
+		nr.Bottom = r.Bottom
 	}
 
 	if qd == 3 {
-		nr.left = center.lo
-		nr.top = center.la
-		nr.right = r.right
-		nr.bottom = r.bottom
+		nr.Left = center.lo
+		nr.Top = center.la
+		nr.Right = r.Right
+		nr.Bottom = r.Bottom
 	}
 	return
 }
 
 func gridColNum() int32 {
-	return (CHINA_RECT.right-CHINA_RECT.left)/GRID_TOP_WIDTH + 1
+	return (CHINA_RECT.Right-CHINA_RECT.Left)/GRID_TOP_WIDTH + 1
 }
 
 func gridRowNum() int32 {
-	return (CHINA_RECT.top-CHINA_RECT.bottom)/GRID_TOP_HEIGHT + 1
+	return (CHINA_RECT.Top-CHINA_RECT.Bottom)/GRID_TOP_HEIGHT + 1
 }
 
 func getGridRowCol(lo, la int32) (row, col int32, ok bool) {
 	ok = true
-	row = (CHINA_RECT.top - la) / GRID_TOP_HEIGHT
+	row = (CHINA_RECT.Top - la) / GRID_TOP_HEIGHT
 	if row < 0 || row >= GRID_ROW_NUM {
 		ok = false
 	}
-	col = (lo - CHINA_RECT.left) / GRID_TOP_WIDTH
+	col = (lo - CHINA_RECT.Left) / GRID_TOP_WIDTH
 	if col < 0 || col >= GRID_COL_NUM {
 		ok = false
 	}

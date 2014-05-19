@@ -17,10 +17,10 @@ type point struct {
 
 func chinaRect() rect {
 	return rect{
-		left:   7181646,
-		top:    5616041,
-		right:  13641237,
-		bottom: 195187,
+		Left:   7181646,
+		Top:    5616041,
+		Right:  13641237,
+		Bottom: 195187,
 	}
 }
 

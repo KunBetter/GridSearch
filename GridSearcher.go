@@ -24,8 +24,8 @@ func (gs *gridSearher) search(searchRect *rect) []int32 {
 	resIDs := []int32{}
 	count := 0
 	//top grids for searchRect
-	startID := getGridTopIndexKey(searchRect.left, searchRect.top)
-	endID := getGridTopIndexKey(searchRect.right, searchRect.bottom)
+	startID := getGridTopIndexKey(searchRect.Left, searchRect.Top)
+	endID := getGridTopIndexKey(searchRect.Right, searchRect.Bottom)
 	if startID == endID {
 		count++
 		go gs.searchInTopGrid(resIDsChan, startID, searchRect)

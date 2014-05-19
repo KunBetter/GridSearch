@@ -28,10 +28,10 @@ func NewGridIndexer() *gridIndexer {
 		tRow := i / GRID_COL_NUM
 		tCol := i % GRID_COL_NUM
 		gi.gridTopArray[i].pRect = &rect{
-			chinaRect().left + GRID_TOP_WIDTH*tCol,
-			chinaRect().top - GRID_TOP_HEIGHT*tRow,
-			chinaRect().left + GRID_TOP_WIDTH*tCol + GRID_TOP_WIDTH,
-			chinaRect().top - GRID_TOP_HEIGHT*tRow - GRID_TOP_HEIGHT,
+			chinaRect().Left + GRID_TOP_WIDTH*tCol,
+			chinaRect().Top - GRID_TOP_HEIGHT*tRow,
+			chinaRect().Left + GRID_TOP_WIDTH*tCol + GRID_TOP_WIDTH,
+			chinaRect().Top - GRID_TOP_HEIGHT*tRow - GRID_TOP_HEIGHT,
 		}
 		//Memory indexed array
 		gi.memIxr[i] = NewMemIndexer(i)

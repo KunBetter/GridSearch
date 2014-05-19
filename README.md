@@ -2,17 +2,37 @@ GridSearch
 ==========
 real-time grid search engine
 
-Usage:
+Installation
+-----
+go get github.com/KunBetter/GridSearch
+$GOPATH/bin/GridSearch
+
+Requires
 -----
 go get github.com/rcrowley/go-metrics
 
-index interface:
+Usage
+-----
+```go
+	engine := Engine{}
+	engine.start()
+
+	http.HandleFunc("/search", engine.search)
+	http.HandleFunc("/index", engine.index)
+
+	err := http.ListenAndServe(":8888", nil)
+	if err != nil {
+		panic(err)
+	}
+```
+
+index interface
 -----
 ```
 	http://localhost:8888/index?pt=lo,la,id
 	curl -XPUT http://localhost:8888/index -d pt=lo,la,id
 ```
-search interface:
+search interface
 -----
 ```
 	http://localhost:8888/search(random rect)
@@ -21,35 +41,35 @@ search interface:
 	curl -XPUT http://localhost:8888/search -d rect=left,top,right,bottom
 	just for china.
 ```
-Algorithms:
+Algorithms
 -----
 		Assuming there are 10 layers of the quadtree,the num of the bottom grids is 4^9.  
 	Each data with latitude and longitude is mapped to the bottom grid.  
 	Search when hit the grid at bottom,calculate the corresponding underlying grid array,  
 	return the appropriate result.
-Features:
+Features
 -----
 	1.A real-time search and indexing incremental updates. 
 	2.the first level of the index is designed to save two modes:files, memory.  
 		second model search faster, but consumes memory.
-Segment control:
+Segment control
 -----
 	1.Recycling spare segments.
 	2.If all segments are in use, increase segment num.
 	3.current segments were Recycled stored in a minimum heap.
 	4.Adding TTL while improving.for the segment is not used for a long time,  
 		some time to delete.
-Features:
+Features
 -----
 	1.A real-time search space data.
 
-Performance Monitoring:
+Performance Monitoring
 -----
 	1.go metrics.
-Scale:
+Scale
 -----
 	1.Spatial data is about 270 million data to about 1G size file,if just store the ID(int32).
-next to do:
+TODO
 -----
 	1.Infrastructure Optimization
 	2.the Consistency problem between index merge operation and the real-time search, because   

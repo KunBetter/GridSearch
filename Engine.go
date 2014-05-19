@@ -2,7 +2,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/KunBetter/GridSearch/stats"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -22,10 +24,33 @@ func (engine *Engine) start() {
 	engine.gi = NewGridIndexer()
 	engine.gs = NewGridSearher(engine.gi)
 	engine.gi.indexing()
+	stats.StatsInit()
+	OnInterrupt(func() {
+		fmt.Println("start to stop Engine...")
+		engine.close()
+		fmt.Println("successfully stopped the engine.")
+	})
 }
 
 func (engine *Engine) indexDocs(pts []gridData) {
+	stats.IndexIn()
 	engine.gi.indexDocs(pts)
+}
+
+func (engine *Engine) stats(w http.ResponseWriter, r *http.Request) {
+	jm, _ := json.Marshal(stats.Stats())
+	fmt.Fprintf(w, "%s", string(jm))
+}
+
+func (engine *Engine) mem(w http.ResponseWriter, r *http.Request) {
+	jm, _ := json.Marshal(stats.MemStat())
+	fmt.Fprintf(w, "%s", string(jm))
+}
+
+func (engine *Engine) disk(w http.ResponseWriter, r *http.Request) {
+	ds := stats.NewDiskStatus("/Users/KunBetter")
+	jm, _ := json.Marshal(ds)
+	fmt.Fprintf(w, "%s", string(jm))
 }
 
 /*
@@ -35,11 +60,8 @@ func (engine *Engine) indexDocs(pts []gridData) {
 func (engine *Engine) index(w http.ResponseWriter, r *http.Request) {
 	//Analytical parameters, the default is not resolved.
 	r.ParseForm()
-	fmt.Println(r.Form)
-	for k, v := range r.Form {
-		fmt.Fprintf(w, "key:%s\n", k)
+	for _, v := range r.Form {
 		vs := strings.Split(v[0], ",")
-		fmt.Fprintf(w, "val:%#v\n", vs)
 		if len(vs) == 3 {
 			tlo, err := strconv.Atoi(vs[0])
 			if err != nil {
@@ -67,39 +89,55 @@ func (engine *Engine) index(w http.ResponseWriter, r *http.Request) {
 	just for china.
 */
 func (engine *Engine) search(w http.ResponseWriter, r *http.Request) {
+	stats.SearchIn()
 	r.ParseForm()
-	fmt.Println(r.Form)
 L:
-	for k, v := range r.Form {
-		fmt.Fprintf(w, "key:%s\n", k)
+	for _, v := range r.Form {
 		vs := strings.Split(v[0], ",")
-		fmt.Fprintf(w, "val:%#v\n", vs)
 		if len(vs) == 4 {
+			jmap := make(map[string]interface{})
+
 			tRect, ok := NewRectBy4String(vs)
 			if !ok {
 				tRect = genRandomRect()
+				jmap["type"] = "random"
+			} else {
+				jmap["type"] = "normal"
 			}
-			fmt.Fprintf(w, "search rect: %d\n", tRect)
 			startTime := time.Now()
 			resIDs := engine.gs.search(tRect)
 			st := time.Now().UnixNano() - startTime.UnixNano()
 			searchTime := float64(st) / 1e6
 
-			fmt.Fprintf(w, "search time: %f ms.\nsearch  res: %d\nres len: %d.",
-				searchTime, resIDs, len(resIDs))
+			jmap["rect"] = tRect
+			jmap["took"] = searchTime
+			jmap["unit"] = "ms"
+			jmap["len"] = len(resIDs)
+			jmap["hits"] = resIDs
+
+			jm, _ := json.Marshal(jmap)
+			fmt.Fprintf(w, "%s", string(jm))
 			break L
 		}
 	}
 	if len(r.Form) == 0 {
+		jmap := make(map[string]interface{})
+
 		tRect := genRandomRect()
-		fmt.Fprintf(w, "<random> search rect: %d\n", tRect)
 		startTime := time.Now()
 		resIDs := engine.gs.search(tRect)
 		st := time.Now().UnixNano() - startTime.UnixNano()
 		searchTime := float64(st) / 1e6
 
-		fmt.Fprintf(w, "search time: %f ms.\nsearch  res: %d\nres len: %d.",
-			searchTime, resIDs, len(resIDs))
+		jmap["type"] = "random"
+		jmap["rect"] = tRect
+		jmap["took"] = searchTime
+		jmap["unit"] = "ms"
+		jmap["len"] = len(resIDs)
+		jmap["hits"] = resIDs
+
+		jm, _ := json.Marshal(jmap)
+		fmt.Fprintf(w, "%s", string(jm))
 	}
 }
 
@@ -123,14 +161,12 @@ func main() {
 		}
 	}()
 
-	OnInterrupt(func() {
-		fmt.Println("start to stop Engine...")
-		engine.close()
-		fmt.Println("successfully stopped the engine.")
-	})
-
 	http.HandleFunc("/search", engine.search)
 	http.HandleFunc("/index", engine.index)
+	http.HandleFunc("/mem", engine.mem)
+	http.HandleFunc("/disk", engine.disk)
+	http.HandleFunc("/stats", engine.stats)
+
 	err := http.ListenAndServe(":8888", nil)
 	if err != nil {
 		panic(err)

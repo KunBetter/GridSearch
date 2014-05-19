@@ -8,12 +8,12 @@ import (
 
 func genRandomLo() int32 {
 	rand_ := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return rand_.Int31n(CHINA_RECT.right-CHINA_RECT.left) + CHINA_RECT.left
+	return rand_.Int31n(CHINA_RECT.Right-CHINA_RECT.Left) + CHINA_RECT.Left
 }
 
 func genRandomLa() int32 {
 	rand_ := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return rand_.Int31n(CHINA_RECT.top-CHINA_RECT.bottom) + CHINA_RECT.bottom
+	return rand_.Int31n(CHINA_RECT.Top-CHINA_RECT.Bottom) + CHINA_RECT.Bottom
 }
 
 func genRandomID() int32 {
