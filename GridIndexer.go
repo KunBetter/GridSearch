@@ -12,6 +12,7 @@ type gridIndexer struct {
 	InputDataFlow chan []gridData //Data Index Flow
 	memIxr        []*memIndexer   //Memory Index
 	indexMeter    metrics.Meter   //Indexing speed monitoring
+	el            *EngineLog      //Engine backup system
 }
 
 //func make([]T, len, cap) []T
@@ -21,6 +22,7 @@ func NewGridIndexer() *gridIndexer {
 		InputDataFlow: make(chan []gridData, 1000),
 		memIxr:        make([]*memIndexer, gridNum, gridNum),
 		indexMeter:    metrics.NewMeter(),
+		el:            NewEngineLog(),
 	}
 	//Divide the top grid
 	var i int32 = 0
@@ -52,6 +54,7 @@ func (gi *gridIndexer) worker(inFlow <-chan []gridData) {
 	for data := range inFlow {
 		for _, ix := range data {
 			//Indexers single data
+			gi.el.LogData(&ix)
 			gridTopID := getGridTopIndexKey(ix.lo, ix.la)
 			if gridTopID < 0 || gridTopID >= gridNum {
 				continue

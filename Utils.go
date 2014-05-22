@@ -2,6 +2,7 @@
 package main
 
 import (
+	"code.google.com/p/snappy-go/snappy"
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
@@ -177,7 +178,21 @@ func writeBufToFile(fn string, buffer []byte) {
 	}
 }
 
+func writeBufAppendFile(fn string, buffer []byte) {
+	f, err := os.OpenFile(fn, os.O_CREATE|os.O_APPEND, 0666)
+	check(err)
+	defer f.Close()
+	bLen, err := f.Write(buffer)
+	check(err)
+	if bLen <= 0 {
+		print("write file error!", fn)
+	}
+}
+
 func getFileLength(fn string) int64 {
+	if !isFileExist(fn) {
+		return 0
+	}
 	fi, err := os.Stat(fn)
 	if err != nil {
 		panic("can not get the file length!")
@@ -202,4 +217,21 @@ func OnInterrupt(fn func()) {
 			os.Exit(0)
 		}
 	}()
+}
+
+//*********COMMPRESSION*************************
+func Compress(src []byte) ([]byte, bool) {
+	dst, err := snappy.Encode(nil, src)
+	if err != nil {
+		return nil, false
+	}
+	return dst, true
+}
+
+func Decompress(src []byte) ([]byte, bool) {
+	dst, err := snappy.Decode(nil, src)
+	if err != nil {
+		return nil, false
+	}
+	return dst, true
 }
