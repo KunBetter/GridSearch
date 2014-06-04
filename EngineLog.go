@@ -12,9 +12,9 @@ import (
 */
 
 const LOGMAXSIZT = 1024 * 1024 * 4
-const LOGFILE = "engine.log"
-const LOGFILEINDEX = "engine.log.index"
-const LOGSEG = "engine.log.seg"
+const LOGFILE = indexDir + "/engine.log"
+const LOGFILEINDEX = indexDir + "/engine.log.index"
+const LOGSEG = indexDir + "/engine.log.seg"
 
 type EngineLog struct {
 	LogFName string
@@ -24,7 +24,7 @@ type EngineLog struct {
 
 func NewEngineLog() *EngineLog {
 	el := &EngineLog{
-		LogFName: "engine.1.log",
+		LogFName: indexDir + "/engine.1.log",
 		Length:   0,
 		LogChan:  make(chan *gridData, 100),
 	}

@@ -145,6 +145,14 @@ func (engine *Engine) close() {
 	engine.gi.close()
 }
 
+func (engine *Engine) Handler(r *http.ServeMux) {
+	r.HandleFunc("/search", engine.search)
+	r.HandleFunc("/index", engine.index)
+	r.HandleFunc("/mem", engine.mem)
+	r.HandleFunc("/disk", engine.disk)
+	r.HandleFunc("/stats", engine.stats)
+}
+
 func main() {
 	engine := Engine{}
 	engine.start()
@@ -161,13 +169,10 @@ func main() {
 		}
 	}()
 
-	http.HandleFunc("/search", engine.search)
-	http.HandleFunc("/index", engine.index)
-	http.HandleFunc("/mem", engine.mem)
-	http.HandleFunc("/disk", engine.disk)
-	http.HandleFunc("/stats", engine.stats)
+	r := http.NewServeMux()
+	engine.Handler(r)
 
-	err := http.ListenAndServe(":8888", nil)
+	err := http.ListenAndServe(":8888", r)
 	if err != nil {
 		panic(err)
 	}
