@@ -1,5 +1,5 @@
 // SearchInGrids
-package main
+package GridSearch
 
 import (
 	"time"

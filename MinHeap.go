@@ -1,5 +1,5 @@
 // minheap
-package main
+package GridSearch
 
 /*
 1.the first node in the array is spare.

@@ -1,5 +1,5 @@
 // rect
-package main
+package GridSearch
 
 import (
 	"strconv"

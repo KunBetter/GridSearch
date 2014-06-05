@@ -1,5 +1,5 @@
 // Engine
-package main
+package GridSearch
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type Engine struct {
 	gs *gridSearher
 }
 
-func (engine *Engine) start() {
+func (engine *Engine) Start() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	createDir(indexDir)
 
@@ -32,7 +32,7 @@ func (engine *Engine) start() {
 	})
 }
 
-func (engine *Engine) indexDocs(pts []gridData) {
+func (engine *Engine) IndexDocs(pts []GridData) {
 	stats.IndexIn()
 	engine.gi.indexDocs(pts)
 }
@@ -75,8 +75,8 @@ func (engine *Engine) index(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				continue
 			}
-			gd := gridData{int32(tlo), int32(tla), int32(tid)}
-			engine.indexDocs([]gridData{gd})
+			gd := GridData{int32(tlo), int32(tla), int32(tid)}
+			engine.IndexDocs([]GridData{gd})
 		}
 	}
 }
@@ -99,7 +99,7 @@ L:
 
 			tRect, ok := NewRectBy4String(vs)
 			if !ok {
-				tRect = genRandomRect()
+				tRect = GenRandomRect()
 				jmap["type"] = "random"
 			} else {
 				jmap["type"] = "normal"
@@ -123,7 +123,7 @@ L:
 	if len(r.Form) == 0 {
 		jmap := make(map[string]interface{})
 
-		tRect := genRandomRect()
+		tRect := GenRandomRect()
 		startTime := time.Now()
 		resIDs := engine.gs.search(tRect)
 		st := time.Now().UnixNano() - startTime.UnixNano()
@@ -151,29 +151,4 @@ func (engine *Engine) Handler(r *http.ServeMux) {
 	r.HandleFunc("/mem", engine.mem)
 	r.HandleFunc("/disk", engine.disk)
 	r.HandleFunc("/stats", engine.stats)
-}
-
-func main() {
-	engine := Engine{}
-	engine.start()
-
-	go func() {
-		for {
-			data := make([]gridData, 1000)
-			for i := 0; i < 1000; i++ {
-				data[i].lo = genRandomLo()
-				data[i].la = genRandomLa()
-				data[i].id = genRandomID()
-			}
-			engine.indexDocs(data)
-		}
-	}()
-
-	r := http.NewServeMux()
-	engine.Handler(r)
-
-	err := http.ListenAndServe(":8888", r)
-	if err != nil {
-		panic(err)
-	}
 }

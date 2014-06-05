@@ -1,5 +1,5 @@
 // GridIndices
-package main
+package GridSearch
 
 import (
 	"github.com/rcrowley/go-metrics"
@@ -9,7 +9,7 @@ import (
 
 type gridIndexer struct {
 	gridTopArray  []gridTop       //top grid array
-	InputDataFlow chan []gridData //Data Index Flow
+	InputDataFlow chan []GridData //Data Index Flow
 	memIxr        []*memIndexer   //Memory Index
 	indexMeter    metrics.Meter   //Indexing speed monitoring
 	el            *EngineLog      //Engine backup system
@@ -19,7 +19,7 @@ type gridIndexer struct {
 func NewGridIndexer() *gridIndexer {
 	gi := gridIndexer{
 		gridTopArray:  make([]gridTop, gridNum, gridNum),
-		InputDataFlow: make(chan []gridData, 1000),
+		InputDataFlow: make(chan []GridData, 1000),
 		memIxr:        make([]*memIndexer, gridNum, gridNum),
 		indexMeter:    metrics.NewMeter(),
 		el:            NewEngineLog(),
@@ -50,19 +50,19 @@ func (gi *gridIndexer) close() {
 	}
 }
 
-func (gi *gridIndexer) worker(inFlow <-chan []gridData) {
+func (gi *gridIndexer) worker(inFlow <-chan []GridData) {
 	for data := range inFlow {
 		for _, ix := range data {
 			//Indexers single data
 			gi.el.LogData(&ix)
-			gridTopID := getGridTopIndexKey(ix.lo, ix.la)
+			gridTopID := getGridTopIndexKey(ix.LO, ix.LA)
 			if gridTopID < 0 || gridTopID >= gridNum {
 				continue
 			}
 			if gridTopID != -1 {
 				bid := gi.getBottomGridID(gridTopID, &ix)
 				gi.indexMeter.Mark(1)
-				gi.memIxr[gridTopID].dataFlow <- mData{ix.id, bid}
+				gi.memIxr[gridTopID].dataFlow <- mData{ix.ID, bid}
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func (gi *gridIndexer) indexing() {
 	}
 }
 
-func (gi *gridIndexer) indexDocs(pts []gridData) {
+func (gi *gridIndexer) indexDocs(pts []GridData) {
 	gi.InputDataFlow <- pts
 }
 
@@ -84,10 +84,10 @@ func (gi *gridIndexer) indexDocs(pts []gridData) {
 	The point is mapped to the underlying quadtree mesh
 	and returns the underlying grid quadtree id number
 */
-func (gi *gridIndexer) getBottomGridID(topGridID int32, d *gridData) int32 {
+func (gi *gridIndexer) getBottomGridID(topGridID int32, d *GridData) int32 {
 	var layer, curID int32 = 0, 0
 	return get4TreeBottomGridID(gi.gridTopArray[topGridID].pRect,
-		&point{d.lo, d.la}, layer, curID)
+		&point{d.LO, d.LA}, layer, curID)
 }
 
 func get4TreeBottomGridID(curRect *rect, p *point, curLayer, curID int32) int32 {

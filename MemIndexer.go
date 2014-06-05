@@ -1,5 +1,5 @@
 // MemIndexer
-package main
+package GridSearch
 
 import (
 	"fmt"

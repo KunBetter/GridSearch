@@ -1,5 +1,5 @@
 // Utils
-package main
+package GridSearch
 
 import (
 	"code.google.com/p/snappy-go/snappy"

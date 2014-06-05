@@ -1,5 +1,5 @@
 // Constants
-package main
+package GridSearch
 
 import (
 	"fmt"

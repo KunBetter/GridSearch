@@ -1,9 +1,9 @@
 // Types
-package main
+package GridSearch
 
-type gridData struct {
-	lo, la int32
-	id     int32 //Unique number
+type GridData struct {
+	LO, LA int32
+	ID     int32 //Unique number
 }
 
 //top grids

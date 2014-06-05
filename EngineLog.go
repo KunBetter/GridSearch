@@ -1,5 +1,5 @@
 // EngineLog
-package main
+package GridSearch
 
 import (
 	"strconv"
@@ -19,14 +19,14 @@ const LOGSEG = indexDir + "/engine.log.seg"
 type EngineLog struct {
 	LogFName string
 	Length   int
-	LogChan  chan *gridData
+	LogChan  chan *GridData
 }
 
 func NewEngineLog() *EngineLog {
 	el := &EngineLog{
 		LogFName: indexDir + "/engine.1.log",
 		Length:   0,
-		LogChan:  make(chan *gridData, 100),
+		LogChan:  make(chan *GridData, 100),
 	}
 	if isFileExist(LOGSEG) {
 		buf, _ := readFile2Bytes(LOGSEG)
@@ -43,9 +43,9 @@ func ChangeLogName(fn string) string {
 	strs := strings.Split(fn, ".")
 	num, err := strconv.Atoi(strs[1])
 	if err != nil {
-		return fn + ".ex"
+		return fn
 	}
-	return strs[0] + strconv.Itoa(num+1) + strs[2]
+	return strs[0] + "." + strconv.Itoa(num+1) + "." + strs[2]
 }
 
 func (el *EngineLog) CompressLog(f2compress string) {
@@ -70,9 +70,9 @@ func (el *EngineLog) process() {
 		select {
 		case gd := <-el.LogChan:
 			buf := []byte{}
-			buf = append(buf, Int32ToBytes(gd.lo)...)
-			buf = append(buf, Int32ToBytes(gd.la)...)
-			buf = append(buf, Int32ToBytes(gd.id)...)
+			buf = append(buf, Int32ToBytes(gd.LO)...)
+			buf = append(buf, Int32ToBytes(gd.LA)...)
+			buf = append(buf, Int32ToBytes(gd.ID)...)
 			el.Length++
 			writeBufAppendFile(el.LogFName, buf)
 			if el.Length >= LOGMAXSIZT {
@@ -96,6 +96,6 @@ func (el *EngineLog) process() {
 	}
 }
 
-func (el *EngineLog) LogData(gd *gridData) {
+func (el *EngineLog) LogData(gd *GridData) {
 	el.LogChan <- gd
 }

@@ -14,16 +14,35 @@ go get github.com/rcrowley/go-metrics
 Usage
 -----
 ```go
-	engine := Engine{}
-	engine.start()
+import (
+	"github.com/KunBetter/GridSearch"
+	"net/http"
+)
 
-	http.HandleFunc("/search", engine.search)
-	http.HandleFunc("/index", engine.index)
+func main() {
+	engine := GridSearch.Engine{}
+	engine.Start()
 
-	err := http.ListenAndServe(":8888", nil)
+	go func() {
+		for {
+			data := make([]GridSearch.GridData, 1000)
+			for i := 0; i < 1000; i++ {
+				data[i].LO = GridSearch.GenRandomLo()
+				data[i].LA = GridSearch.GenRandomLa()
+				data[i].ID = GridSearch.GenRandomID()
+			}
+			engine.IndexDocs(data)
+		}
+	}()
+
+	r := http.NewServeMux()
+	engine.Handler(r)
+
+	err := http.ListenAndServe(":8888", r)
 	if err != nil {
 		panic(err)
 	}
+}
 ```
 
 index interface
