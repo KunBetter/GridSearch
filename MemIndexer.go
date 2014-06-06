@@ -173,8 +173,7 @@ func (mi *memIndexer) addData() {
 				mi.curMem = (mi.curMem + 1) % 2
 				mi.counter = 0
 			}
-		case mem := <-mi.done:
-			mi.memIXData[mem] = make(map[int32][]int32)
+		case <-mi.done:
 			mi.swap = true
 		}
 	}
@@ -253,13 +252,13 @@ func (mi *memIndexer) searchInMem(bids []int32) []int32 {
 	for i := 0; i < blen; i++ {
 		var k, s, e int32 = 0, bids[i*2], bids[i*2+1]
 		for k = s; k <= e; k++ {
-			_, ok0 := mi.memIXData[0][k]
-			if ok0 {
-				mRes = append(mRes, mi.memIXData[0][k]...)
+			ids, ok := mi.memIXData[0][k]
+			if ok {
+				mRes = append(mRes, MergeSort(ids)...)
 			}
-			_, ok1 := mi.memIXData[1][k]
-			if ok1 {
-				mRes = append(mRes, mi.memIXData[1][k]...)
+			ids, ok = mi.memIXData[1][k]
+			if ok {
+				mRes = append(mRes, MergeSort(ids)...)
 			}
 		}
 	}
@@ -335,11 +334,13 @@ func (mi *memIndexer) storeMem(seg int32) {
 		firstIXs[i] = offset
 		ids, ok := mi.memIXData[0][i+BOTTOMFIRSTGRIDID]
 		if ok {
+			ids = MergeSort(ids)
 			secondIXs = append(secondIXs, ids...)
 			offset += int32(len(ids))
 		}
 		ids, ok = mi.memIXData[1][i+BOTTOMFIRSTGRIDID]
 		if ok {
+			ids = MergeSort(ids)
 			secondIXs = append(secondIXs, ids...)
 			offset += int32(len(ids))
 		}
@@ -375,9 +376,11 @@ func (mi *memIndexer) mem2File(curMem int, seg int32) {
 		firstIXs[i] = offset
 		ids, ok := mi.memIXData[curMem][i+BOTTOMFIRSTGRIDID]
 		if ok {
+			ids = MergeSort(ids)
 			secondIXs = append(secondIXs, ids...)
 			offset += int32(len(ids))
 		}
+		mi.memIXData[curMem][i+BOTTOMFIRSTGRIDID] = []int32{}
 	}
 	tPath := path(mi.topGridID)
 	sPath := fmt.Sprintf("%s%d.sec", tPath, seg)
@@ -429,15 +432,17 @@ func (mi *memIndexer) ixMerge(seg1, seg2 int32, seg int32) {
 	bufLen := BOTTOMGRIDNUM
 	firstIXs := make([]int32, bufLen, bufLen)
 	secondIXs := []int32{}
-	var i int32 = 0
+	var i, mergeLen int32 = 0, 0
 	for i = 0; i < bufLen-1; i++ {
-		firstIXs[i] = fIXs1[i] + fIXs2[i]
-		secondIXs = append(secondIXs, sIXs1[fIXs1[i]:fIXs1[i+1]]...)
-		secondIXs = append(secondIXs, sIXs2[fIXs2[i]:fIXs2[i+1]]...)
+		firstIXs[i] = mergeLen
+		mergeSIX := Merge(sIXs1[fIXs1[i]:fIXs1[i+1]], sIXs2[fIXs2[i]:fIXs2[i+1]])
+		secondIXs = append(secondIXs, mergeSIX...)
+		mergeLen += int32(len(mergeSIX))
 	}
-	firstIXs[i] = fIXs1[i] + fIXs2[i]
-	secondIXs = append(secondIXs, sIXs1[fIXs1[i]:]...)
-	secondIXs = append(secondIXs, sIXs2[fIXs2[i]:]...)
+	firstIXs[i] = mergeLen
+	mergeSIX := Merge(sIXs1[fIXs1[i]:], sIXs2[fIXs2[i]:])
+	secondIXs = append(secondIXs, mergeSIX...)
+	mergeLen += int32(len(mergeSIX))
 
 	sPath := fmt.Sprintf("%s%d.sec", tPath, seg)
 	writeBufToFile(sPath, i32ToB(secondIXs))

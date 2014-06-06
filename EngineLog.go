@@ -11,7 +11,7 @@ import (
 	Save each data before index for Recovery.
 */
 
-const LOGMAXSIZT = 1024 * 1024 * 4
+const LOGMAXSIZT = 1024 * 1024 * 36
 const LOGFILE = indexDir + "/engine.log"
 const LOGFILEINDEX = indexDir + "/engine.log.index"
 const LOGSEG = indexDir + "/engine.log.seg"

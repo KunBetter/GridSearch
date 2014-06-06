@@ -235,3 +235,97 @@ func Decompress(src []byte) ([]byte, bool) {
 	}
 	return dst, true
 }
+
+//*********MERGE*************************
+func Merge(a, b []int32) []int32 {
+	i, j, k := 0, 0, 0
+	aLen := len(a)
+	bLen := len(b)
+	c := make([]int32, aLen+bLen)
+	for i < aLen && j < bLen {
+		if a[i] < b[j] {
+			c[k] = a[i]
+			i++
+		} else if a[i] > b[j] {
+			c[k] = b[j]
+			j++
+		} else {
+			c[k] = a[i]
+			i++
+			j++
+		}
+		k++
+	}
+	for i < aLen {
+		c[k] = a[i]
+		k++
+		i++
+	}
+	for j < bLen {
+		c[k] = b[j]
+		k++
+		j++
+	}
+	return c[0:k]
+}
+
+func MergeSlice(a []int32, first, mid, last int, temp []int32) {
+	i := first
+	j := mid + 1
+	m := mid
+	n := last
+	k := 0
+
+	for i <= m && j <= n {
+		if a[i] <= a[j] {
+			temp[k] = a[i]
+			i++
+		} else {
+			temp[k] = a[j]
+			j++
+		}
+		k++
+	}
+
+	for i <= m {
+		temp[k] = a[i]
+		k++
+		i++
+	}
+
+	for j <= n {
+		temp[k] = a[j]
+		k++
+		j++
+	}
+
+	for i := 0; i < k; i++ {
+		a[first+i] = temp[i]
+	}
+}
+func MergeSort_(a []int32, first, last int, temp []int32) {
+	if first < last {
+		mid := (first + last) / 2
+		MergeSort_(a, first, mid, temp)
+		MergeSort_(a, mid+1, last, temp)
+		MergeSlice(a, first, mid, last, temp)
+	}
+}
+
+func MergeSort(a []int32) []int32 {
+	n := len(a)
+	if n <= 1 {
+		return a
+	}
+	p := make([]int32, n)
+	MergeSort_(a, 0, n-1, p)
+	p[0] = a[0]
+	j := 0
+	for i := 1; i < n; i++ {
+		if a[i] != p[j] {
+			j++
+			p[j] = a[i]
+		}
+	}
+	return p[0 : j+1]
+}

@@ -1,4 +1,4 @@
-// GridIndices
+// GridIndexer
 package GridSearch
 
 import (

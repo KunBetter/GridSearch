@@ -145,10 +145,18 @@ func (engine *Engine) close() {
 	engine.gi.close()
 }
 
+/*
+	http://localhost:8888/delete?pt=lo,la,id
+	curl -XPUT http://localhost:8888/delete -d pt=lo,la,id
+*/
+func (engine *Engine) del(w http.ResponseWriter, r *http.Request) {
+}
+
 func (engine *Engine) Handler(r *http.ServeMux) {
 	r.HandleFunc("/search", engine.search)
 	r.HandleFunc("/index", engine.index)
 	r.HandleFunc("/mem", engine.mem)
 	r.HandleFunc("/disk", engine.disk)
 	r.HandleFunc("/stats", engine.stats)
+	r.HandleFunc("/delete", engine.del)
 }

@@ -1,4 +1,4 @@
-// Engine
+// Server
 package main
 
 import (

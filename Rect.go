@@ -1,4 +1,4 @@
-// rect
+// Rect
 package GridSearch
 
 import (

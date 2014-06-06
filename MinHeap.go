@@ -1,4 +1,4 @@
-// minheap
+// MinHeap
 package GridSearch
 
 /*
